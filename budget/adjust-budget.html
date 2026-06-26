@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adjust Budget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #D3CFA7; margin: 0; }
+        .olive-header { background-color: #4A4A22; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-sm bg-[#FCFBF5] h-[820px] rounded-[40px] shadow-2xl border-8 border-stone-800 flex flex-col overflow-hidden">
+        
+        <div class="olive-header text-white p-8">
+            <a href="../dashboard/index.html" class="text-[10px] font-black uppercase tracking-widest opacity-60">← BACK</a>
+            <h1 class="text-2xl font-extrabold mt-2 uppercase tracking-tight">ADJUST BUDGET</h1>
+        </div>
+
+        <div class="p-6 space-y-6 flex-1 overflow-y-auto">
+            
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-stone-400 uppercase tracking-widest">Set New Limit</label>
+                <!-- Tambah id="budget-input" -->
+                <input type="number" id="budget-input" placeholder="RM 0.00" class="w-full bg-stone-100 p-5 rounded-2xl font-black text-lg outline-none focus:ring-2 ring-[#4A4A22]">
+            </div>
+
+            <!-- Tambah id="save-btn" -->
+            <button id="save-btn" class="w-full bg-[#4A4A22] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition">
+                SAVE CHANGES
+            </button>
+        
+        </div>
+    </div>
+
+    <!-- Script Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
+            authDomain: "expenses-tracker-18c98.firebaseapp.com", 
+            projectId: "expenses-tracker-18c98", 
+            storageBucket: "expenses-tracker-18c98.firebasestorage.app", 
+            messagingSenderId: "495267818258", 
+            appId: "1:495267818258:web:323bfa521330af6649a1cb" 
+        };
+        const db = getFirestore(initializeApp(firebaseConfig));
+
+        document.getElementById('save-btn').addEventListener('click', async () => {
+            const inputVal = document.getElementById('budget-input').value;
+            const newBudget = parseFloat(inputVal);
+            
+            if (isNaN(newBudget)) {
+                alert("Please enter a valid number!");
+                return;
+            }
+
+            try {
+                // Update ke Firebase
+                const userRef = doc(db, "users", "nana_test_user");
+                await updateDoc(userRef, {
+                    monthlyBudget: newBudget,
+                    initialBudget: newBudget
+                });
+                
+                alert("Budget successfully updated!");
+                // Balik ke dashboard
+                window.location.href = "../dashboard/index.html";
+            } catch (error) {
+                console.error("Error updating budget: ", error);
+                alert("Failed to update. Check console for details.");
+            }
+        });
+    </script>
+</body>
+</html>

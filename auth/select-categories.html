@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Categories - Expenses Tracker</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <style>
+        .setup-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .title-box {
+            background: #7d6e33;
+            color: white;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        /* Grid Susunan Kategori ikut Figma */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        .category-card {
+            background: white;
+            border: 2px solid #bca95c;
+            border-radius: 15px;
+            padding: 15px;
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .category-card .icon {
+            font-size: 24px;
+        }
+        /* Bila user pilih kad kategori */
+        .category-card.selected {
+            background: #7d6e33;
+            color: white;
+            border-color: #7d6e33;
+        }
+        .btn-next {
+            width: 100%;
+            padding: 12px;
+            background: #bca95c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-next:hover {
+            background: #7d6e33;
+        }
+        .select-all-text {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+    </style>
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+</head>
+<body class="page">
+
+    <div class="wave-divider-2"></div>
+
+    <div class="setup-container">
+        <div class="title-box">Select Categories</div>
+        <p class="select-all-text">Tap to select or deselect the categories you want to track.</p>
+
+        <div class="categories-grid">
+            <div class="category-card selected" data-cat="Food">
+                <span class="icon">🍔</span>
+                <span>Food</span>
+            </div>
+            <div class="category-card selected" data-cat="Transport">
+                <span class="icon">🚗</span>
+                <span>Transport</span>
+            </div>
+            <div class="category-card selected" data-cat="Bills">
+                <span class="icon">🧾</span>
+                <span>Bills</span>
+            </div>
+            <div class="category-card selected" data-cat="Shopping">
+                <span class="icon">🛍️</span>
+                <span>Shopping</span>
+            </div>
+            <div class="category-card selected" data-cat="Entertainment">
+                <span class="icon">🎬</span>
+                <span>Entertainment</span>
+            </div>
+            <div class="category-card" data-cat="Others">
+                <span class="icon">📌</span>
+                <span>Others</span>
+            </div>
+        </div>
+
+        <button id="btn-next-categories" class="btn-next">Next</button>
+    </div>
+
+    <script>
+        const cards = document.querySelectorAll('.category-card');
+        
+        // Buat toggle select/deselect bila user klik kad
+        cards.forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected');
+            });
+        });
+
+        document.getElementById('btn-next-categories').addEventListener('click', () => {
+            const selectedCats = [];
+            document.querySelectorAll('.category-card.selected').forEach(card => {
+                selectedCats.push(card.getAttribute('data-cat'));
+            });
+
+            if (selectedCats.length === 0) {
+                alert("Please select at least one category to proceed!");
+                return;
+            }
+
+            // Simpan array kategori dalam sessionStorage browser
+            sessionStorage.setItem('user_categories', JSON.stringify(selectedCats));
+            
+            // Lompat ke page kejayaan/terakhir!
+            window.location.href = "success.html";
+        });
+    </script>
+</body>
+</html>

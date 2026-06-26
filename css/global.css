@@ -1,0 +1,251 @@
+/* ==========================================================================
+   1. RESET & SYSTEM VARIABLES
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
+
+:root {
+    --bg-gradient: linear-gradient(180deg, #dfd087 0%, #bca95c 50%, #7d6e33 100%);
+    --text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    --box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+body {
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.app-container {
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ==========================================================================
+   2. PAGE ARCHITECTURE (Visibility States)
+   ========================================================================== */
+.page {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 50px 20px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.page.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.page.hidden {
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
+}
+
+/* ==========================================================================
+   3. ELEMENT DESIGN SYSTEMS
+   ========================================================================== */
+.logo-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.logo-circle {
+    width: 160px;
+    height: 160px;
+    background-color: #ffffff;
+    border: 5px solid #4a4221;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: var(--box-shadow);
+}
+
+.logo-placeholder { font-size: 5rem; }
+
+/* Page 1 Specific Content Layout */
+.content-section-1 {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin-bottom: 40px;
+    z-index: 2;
+}
+
+.welcome-text {
+    font-size: 2rem;
+    color: #ffffff;
+    font-style: italic;
+    text-shadow: var(--text-shadow);
+    margin-bottom: 10px;
+}
+
+.main-title {
+    font-size: 2.6rem;
+    color: #3b3514; 
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-shadow: 1.5px 1.5px 0px #fff, -1.5px -1.5px 0px #fff, 1.5px -1.5px 0px #fff, -1.5px 1.5px 0px #fff;
+    margin-bottom: 40px;
+}
+
+/* Page 2 Specific Slogan Layout */
+.intro-section-2 {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin-top: 40px;
+    z-index: 2;
+}
+
+.headline-text {
+    font-size: 2.5rem;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: bold;
+    line-height: 1.2;
+    text-shadow: var(--text-shadow);
+    margin-bottom: 20px;
+}
+
+.subheadline-text {
+    font-size: 1.15rem;
+    color: #1a1915;
+    font-weight: bold;
+    line-height: 1.5;
+    padding: 0 10px;
+}
+
+/* Universal Button Styles */
+.btn {
+    display: inline-block;
+    padding: 14px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 50px;
+    border: 2px solid #000;
+    cursor: pointer;
+    box-shadow: var(--box-shadow);
+    transition: all 0.2s ease;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.btn-auth { width: 260px; }
+
+.auth-buttons-section-2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    margin-bottom: 40px;
+    z-index: 2;
+}
+
+/* ==========================================================================
+   4. WAVE BACKGROUND MANAGEMENT (Figma Custom Waves - Fixed Icon Clipping)
+   ========================================================================== */
+.wave-divider-1, .wave-divider-2 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Page 1: Rendahkan bukit kiri (M0,500 Q350,350) supaya tak langgar ikon wallet */
+.wave-divider-1 {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 1000' preserveAspectRatio='none'><path fill='%23bca95c' fill-opacity='0.4' d='M0,500 Q350,350 550,550 T1440,680 L1440,1000 L0,1000 Z'></path><path fill='%237d6e33' fill-opacity='0.8' d='M0,540 Q350,390 550,580 T1440,710 L1440,1000 L0,1000 Z'></path></svg>");
+    filter: drop-shadow(0px -15px 20px rgba(0, 0, 0, 0.35));
+}
+
+/* Page 2: Kekalkan lengkungan kawah dalam (Deep Scoop) sebab dah okay */
+.wave-divider-2 {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 1000' preserveAspectRatio='none'><path fill='%23bca95c' fill-opacity='0.4' d='M0,350 Q250,850 600,600 T1440,350 L1440,1000 L0,1000 Z'></path><path fill='%237d6e33' fill-opacity='0.8' d='M0,400 Q250,900 600,650 T1440,400 L1440,1000 L0,1000 Z'></path></svg>");
+    filter: drop-shadow(0px -15px 20px rgba(0, 0, 0, 0.35));
+}
+
+/* ==========================================================================
+   5. LAPTOP RESPONSIVE GRID LAYOUT
+   ========================================================================== */
+@media (min-width: 992px) {
+    .page {
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0 10%;
+    }
+    
+    .logo-section { 
+        width: auto; 
+        margin-top: 0; 
+        transform: translateY(-80px); /* Tukar dari -50px ke -80px untuk tolak naik atas lagi */
+    }
+    .content-section-1 { 
+        text-align: left; 
+        margin-bottom: 0; 
+        transform: translateY(100px); /* Tolak teks ke bawah kawasan cerah */
+    }
+    .main-title { padding-left: 0; }
+    .btn-container-1 { text-align: left; }
+    
+    .intro-section-2 { 
+        text-align: left; 
+        margin-top: 0;
+        transform: translateY(-50px);
+    }
+    .subheadline-text { padding: 0; margin: 0; }
+    .auth-buttons-section-2 { 
+        width: auto; 
+        margin-bottom: 0; 
+        transform: translateY(100px);
+    }
+}
+
+.text-right { text-align: right; }
+
+/* 🌙 GLOBAL DARK MODE TRICK */
+html.dark body {
+    background-color: #1A1A10 !important;
+    color: #F3F3EE !important;
+}
+
+html.dark .bg-white, 
+html.dark [class*="bg-["],
+html.dark .bg-stone-50 {
+    background-color: #26261F !important;
+    color: #F3F3EE !important;
+    border-color: #33332B !important;
+}
+
+html.dark text, 
+html.dark h1, 
+html.dark h2, 
+html.dark h3, 
+html.dark span, 
+html.dark p:not(.text-stone-400) {
+    color: #E5E5DE !important;
+}

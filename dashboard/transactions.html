@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recent Transactions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
+    </script>
+</head>
+<body class="bg-[#D3CFA7] dark:bg-[#1A1A14] p-4 transition-colors duration-300">
+    <div class="w-full max-w-md mx-auto bg-[#FAF9F5] dark:bg-[#20201A] min-h-[850px] rounded-[40px] border-8 border-stone-800 dark:border-stone-700 p-6 shadow-2xl overflow-y-auto">
+        <a href="analytics.html" class="text-sm font-bold text-stone-500 dark:text-stone-400">← Back to Analytics</a>
+        
+        <h1 class="text-2xl font-black text-stone-800 dark:text-white mt-6 mb-4">Transactions</h1>
+        
+        <!-- Search & Filter -->
+        <div class="space-y-3 mb-6">
+            <input type="text" id="searchInput" oninput="filterData()" placeholder="Search item..." class="w-full p-3 rounded-xl border border-stone-300 dark:bg-stone-800 dark:border-stone-700 dark:text-white placeholder-stone-400">
+            <select id="catFilter" onchange="filterData()" class="w-full p-3 rounded-xl border border-stone-300 dark:bg-stone-800 dark:border-stone-700 dark:text-white">
+                <option value="All">All Categories</option>
+                <option value="Food">Food</option>
+                <option value="Transport">Transport</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+
+        <div id="list" class="space-y-3">
+            <p class="text-center text-stone-400">Loading transactions...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
+            authDomain: "expenses-tracker-18c98.firebaseapp.com", 
+            projectId: "expenses-tracker-18c98", 
+            storageBucket: "expenses-tracker-18c98.firebasestorage.app", 
+            messagingSenderId: "495267818258", 
+            appId: "1:495267818258:web:323bfa521330af6649a1cb" 
+        };
+        
+        const db = getFirestore(initializeApp(firebaseConfig));
+        let allData = [];
+
+        async function fetchTransactions() {
+            const q = query(collection(db, "expenses"), where("userId", "==", "nana_test_user"), orderBy("date", "desc"));
+            const snap = await getDocs(q);
+            
+            allData = [];
+            snap.forEach(d => {
+                allData.push({ id: d.id, ...d.data() });
+            });
+            renderList(allData);
+        }
+
+        window.renderList = (data) => {
+            const list = document.getElementById('list');
+            if (data.length === 0) {
+                list.innerHTML = `<p class="text-center text-stone-400">No transactions found.</p>`;
+                return;
+            }
+            list.innerHTML = data.map(item => {
+                const date = item.date.toDate ? item.date.toDate().toLocaleDateString() : item.date;
+                return `
+                    <div class="p-4 bg-white dark:bg-[#2C2C24] rounded-2xl flex justify-between items-center border dark:border-stone-800">
+                        <div>
+                            <p class="font-bold text-sm dark:text-white">${item.itemName || 'No name'}</p>
+                            <p class="text-[10px] text-stone-400">${item.category || 'Others'} • ${date}</p>
+                        </div>
+                        <p class="font-black text-red-500">-RM ${parseFloat(item.amount).toFixed(2)}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.filterData = () => {
+            const text = document.getElementById('searchInput').value.toLowerCase().trim();
+            const cat = document.getElementById('catFilter').value;
+            
+            const filtered = allData.filter(item => {
+                const nameMatch = (item.itemName || '').toLowerCase().includes(text);
+                const catMatch = (cat === 'All' || (item.category || 'Others') === cat);
+                return nameMatch && catMatch;
+            });
+            
+            renderList(filtered);
+        }
+
+        fetchTransactions();
+    </script>
+</body>
+</html>

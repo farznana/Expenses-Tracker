@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.getItem("theme") === "dark") document.documentElement.classList.add("dark");
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
+        .olive-box { background-color: #4A4A22; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Toggle Switch CSS */
+        .toggle-switch { transition: all 0.3s; }
+        .toggle-switch:checked { background-color: #4A4A22; }
+        .toggle-switch:checked + span { transform: translateX(1.25rem); }
+    </style>
+</head>
+<body class="flex items-center justify-center p-6 bg-gradient-to-b from-[#E2DCB1] to-[#C4BC82] dark:from-none dark:bg-[#1A1A14] transition-colors duration-300">
+
+    <div class="w-full max-w-sm bg-[#FCFBF5] dark:bg-[#20201A] rounded-[40px] shadow-2xl overflow-hidden border border-stone-100 dark:border-stone-800/40 flex flex-col h-[680px]">
+        
+        <div class="olive-box text-white p-6 flex items-center justify-between shadow-md shrink-0">
+            <a href="profile.html" class="text-xs font-bold uppercase tracking-wider opacity-80 hover:opacity-100 transition">← Back</a>
+            <h2 class="font-extrabold text-base tracking-tight uppercase tracking-widest">Settings</h2>
+            <div class="w-10"></div>
+        </div>
+
+        <div class="p-6 space-y-5 flex-1 overflow-y-auto no-scrollbar">
+            
+            <div class="space-y-2.5">
+                <div class="inline-flex items-center px-3 py-1 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px] font-black uppercase tracking-wider rounded-full">🎨 Appearance</div>
+                <div class="bg-white dark:bg-[#2C2C24] rounded-2xl border border-stone-100 dark:border-stone-700/50 p-4 shadow-sm flex justify-between items-center transition-colors">
+                    <div>
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200 block">Dark Mode</span>
+                        <span class="text-[10px] text-stone-400 dark:text-stone-500">Enable dark theme for night usage</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="dark-mode-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4A4A22]"></div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="space-y-2.5">
+                <div class="inline-flex items-center px-3 py-1 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px] font-black uppercase tracking-wider rounded-full">💼 Account & Finance</div>
+                <div class="bg-white dark:bg-[#2C2C24] rounded-2xl border border-stone-100 dark:border-stone-700/50 p-4 shadow-sm space-y-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-stone-700 dark:text-stone-200 block">Primary Currency</span>
+                            <span class="text-[10px] text-stone-400 dark:text-stone-500">Select your base currency</span>
+                        </div>
+                        <select id="currency-select" class="text-xs font-bold bg-stone-50 dark:bg-[#20201A] border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 p-2 rounded-lg focus:outline-none"></select>
+                    </div>
+                    <hr class="border-stone-100 dark:border-stone-700/40">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-stone-700 dark:text-stone-200 block">Alert Threshold</span>
+                            <span class="text-[10px] text-stone-400 dark:text-stone-500">Notify when budget reaches %</span>
+                        </div>
+                        <select id="threshold-select" class="text-xs font-bold bg-stone-50 dark:bg-[#20201A] border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-200 p-2 rounded-lg focus:outline-none">
+                            <option value="50">50%</option>
+                            <option value="70">70%</option>
+                            <option value="90">90%</option>
+                        </select>
+                    </div>
+                    <hr class="border-stone-100 dark:border-stone-700/40">
+                    <!-- Link ke Adjust Budget -->
+                    <a href="../budget/adjust-budget.html" class="w-full flex justify-between items-center text-left">
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">Adjust Monthly Budget</span>
+                        <span class="text-stone-400">→</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="space-y-2.5">
+                <div class="inline-flex items-center px-3 py-1 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 text-[10px] font-black uppercase tracking-wider rounded-full">🔒 Security</div>
+                <div class="bg-white dark:bg-[#2C2C24] rounded-2xl border border-stone-100 dark:border-stone-700/50 p-4 shadow-sm space-y-4">
+                    <button onclick="openPasswordModal()" class="w-full flex justify-between items-center text-left">
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">Change Password</span>
+                        <span class="text-stone-400">→</span>
+                    </button>
+                    <hr class="border-stone-100 dark:border-stone-700/40">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-bold text-stone-700 dark:text-stone-200">Biometric Lock</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="biometric-toggle" class="sr-only peer">
+                            <div class="w-11 h-6 bg-stone-200 peer-focus:outline-none rounded-full peer dark:bg-stone-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#4A4A22]"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button onclick="logOut()" class="w-full text-center bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 py-3 rounded-xl text-xs font-bold tracking-wide uppercase">🚪 Log Out</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="password-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-[#FCFBF5] dark:bg-[#20201A] p-6 rounded-[32px] w-full max-w-sm space-y-4">
+            <h3 class="text-xs font-extrabold uppercase text-stone-800 dark:text-white">Change Password</h3>
+            <input type="password" id="curr-pass" placeholder="Current Password" class="w-full p-3 bg-white dark:bg-[#2C2C24] border border-stone-200 dark:border-stone-700 rounded-xl text-xs">
+            <input type="password" id="new-pass" placeholder="New Password" class="w-full p-3 bg-white dark:bg-[#2C2C24] border border-stone-200 dark:border-stone-700 rounded-xl text-xs">
+            <div class="flex gap-3">
+                <button onclick="closePasswordModal()" class="flex-1 py-3 text-xs font-bold text-stone-500">Cancel</button>
+                <button onclick="alert('Password saved!') || closePasswordModal()" class="flex-1 py-3 bg-[#4A4A22] text-white rounded-xl text-xs font-bold">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const currencies = ["MYR", "USD", "EUR", "GBP", "SGD", "AUD", "CAD", "JPY", "CHF", "AED", "CNY", "THB", "IDR", "KRW", "INR", "BND", "NZD", "PHP", "VND", "SAR", "NOK", "SEK", "DKK", "RUB", "TRY"];
+        const currencySelect = document.getElementById('currency-select');
+        
+        currencies.forEach(code => {
+            const opt = document.createElement('option');
+            opt.value = code; opt.textContent = code;
+            currencySelect.appendChild(opt);
+        });
+
+        document.getElementById('dark-mode-toggle').checked = localStorage.getItem('theme') === 'dark';
+        document.getElementById('biometric-toggle').checked = localStorage.getItem('biometricLock') === 'true';
+        currencySelect.value = localStorage.getItem('userCurrency') || 'MYR';
+
+        document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', e.target.checked ? 'dark' : 'light');
+        });
+
+        document.getElementById('biometric-toggle').addEventListener('change', (e) => {
+            localStorage.setItem('biometricLock', e.target.checked);
+        });
+
+        currencySelect.addEventListener('change', () => localStorage.setItem('userCurrency', currencySelect.value));
+
+        function openPasswordModal() { document.getElementById('password-modal').classList.remove('hidden'); }
+        function closePasswordModal() { document.getElementById('password-modal').classList.add('hidden'); }
+        function logOut() { window.location.href = "login.html"; }
+    </script>
+</body>
+</html>

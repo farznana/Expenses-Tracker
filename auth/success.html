@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Set! - Expenses Tracker</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <style>
+        .setup-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .success-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pop 0.5s ease-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            80% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .btn-dashboard {
+            width: 100%;
+            padding: 14px;
+            background: #7d6e33;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 16px;
+            margin-top: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .btn-dashboard:hover {
+            background: #bca95c;
+        }
+    </style>
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+</head>
+<body class="page">
+
+    <div class="wave-divider-2"></div>
+
+    <div class="setup-container">
+        <div class="success-icon">✨🏆✨</div>
+        <h2 style="color: #7d6e33; margin-bottom: 10px;">You're All Set!</h2>
+        <p style="color: #555; font-size: 15px; line-height: 1.5;">
+            Your currency, monthly budget, and tracking categories have been successfully configured.
+        </p>
+
+        <button id="btn-go-dashboard" class="btn-dashboard">Go To Dashboard</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4",
+            authDomain: "expenses-tracker-18c98.firebaseapp.com",
+            projectId: "expenses-tracker-18c98",
+            storageBucket: "expenses-tracker-18c98.firebasestorage.app",
+            messagingSenderId: "495267818258",
+            appId: "1:495267818258:web:323bfa521330af6649a1cb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const btnDashboard = document.getElementById('btn-go-dashboard');
+
+        btnDashboard.addEventListener('click', async (e) => {
+            e.preventDefault();
+
+            // Retrieve onboarding data from sessionStorage
+            const currency = sessionStorage.getItem('user_currency') || 'MYR';
+            const budget = sessionStorage.getItem('user_budget') || '0';
+            const categories = sessionStorage.getItem('user_categories') ? JSON.parse(sessionStorage.getItem('user_categories')) : ["Food", "Transport"];
+
+            // TEMPORARY ID: We use this until we fully restore the Firebase Auth session sync
+            const customDocId = "nana_test_user"; 
+
+            try {
+                // Save configurations directly to Firestore
+                await setDoc(doc(db, "users", customDocId), {
+                    email: "nana.test@gmail.com",
+                    currency: currency,
+                    monthlyBudget: Number(budget),
+                    selectedCategories: categories,
+                    createdAt: new Date(),
+                    status: "Onboarding Completed"
+                });
+
+                // Clear temporary session cache
+                sessionStorage.removeItem('user_currency');
+                sessionStorage.removeItem('user_budget');
+                sessionStorage.removeItem('user_categories');
+
+                // Redirect to user dashboard
+                window.location.href = "../dashboard/index.html";
+
+            } catch (error) {
+                console.error("Firestore Write Error:", error.message);
+                alert("System Error: Failed to save configuration. Please try again.");
+            }
+        });
+    </script>
+</body>
+</html>

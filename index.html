@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expenses Tracker</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <section id="starting-page-1" class="page active">
+            <div class="logo-section">
+                <div class="logo-circle">
+                    <span class="logo-placeholder">💰</span> 
+                </div>
+            </div>
+
+            <div class="wave-divider-1"></div>
+
+            <div class="content-section-1">
+                <h2 class="welcome-text">Welcome To...</h2>
+                <h1 class="main-title">EXPENSES TRACKER</h1>
+                
+                <div class="btn-container-1 text-right">
+                    <button id="btn-get-started" class="btn">Get Started</button>
+                </div>
+            </div>
+        </section>
+
+
+        <section id="starting-page-2" class="page hidden">
+            <div class="intro-section-2">
+                <h1 class="headline-text">Stay organized.<br>Spend wisely.</h1>
+                <p class="subheadline-text">Take control of your spending and track every expense with ease.</p>
+            </div>
+
+            <div class="wave-divider-2"></div>
+
+            <div class="auth-buttons-section-2">
+                <a href="auth/login.html" class="btn btn-auth">Login</a>
+                <a href="auth/register.html" class="btn btn-auth">Register</a>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

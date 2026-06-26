@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set Monthly Budget - Expenses Tracker</title>
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#4A4A22">
+    <style>
+        .setup-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .title-box {
+            background: #7d6e33;
+            color: white;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        /* Kotak bajet besar premium gold ikut design Figma kau */
+        .budget-box {
+            background: #5b4f23;
+            padding: 40px 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 15px;
+            padding: 10px 20px;
+            width: 75%;
+            margin: 0 auto 15px auto;
+        }
+        .currency-label {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-right: 8px;
+        }
+        .budget-input {
+            width: 100%;
+            border: none;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+            outline: none;
+        }
+        /* Hilangkan arrow remeh pada input number */
+        .budget-input::-webkit-inner-spin-button, 
+        .budget-input::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        .btn-next {
+            width: 100%;
+            padding: 12px;
+            background: #bca95c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        .btn-next:hover {
+            background: #7d6e33;
+        }
+    </style>
+    <script>
+        if (localStorage.getItem("theme") === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
+    </script>
+</head>
+<body class="page">
+
+    <div class="wave-divider-2"></div>
+
+    <div class="setup-container">
+        <div class="title-box">Set Your Monthly Budget</div>
+        
+        <div class="budget-box">
+            <p style="color: #f1ebd9; font-size: 14px; margin-bottom: 20px;">
+                Define how much you plan to spend each month.
+            </p>
+            
+            <div class="input-group">
+                <span class="currency-label" id="display-currency">RM</span>
+                <input type="number" id="monthly-budget-input" class="budget-input" placeholder="0.00" min="1" required>
+            </div>
+
+            <p style="color: #d1c79e; font-size: 12px; font-style: italic; margin: 0;">
+                You can change this anytime.
+            </p>
+        </div>
+
+        <button id="btn-next-budget" class="btn-next">Next</button>
+    </div>
+
+    <script>
+        // 1. Ambil data pilihan mata wang daripada page sebelum ni
+        const savedCurrency = sessionStorage.getItem('user_currency') || 'MYR';
+        const displayCurrency = document.getElementById('display-currency');
+        
+        // 2. Senarai pemetaan simbol mata wang antarabangsa (Multi-Country Support)
+        const currencySymbols = {
+            'MYR': 'RM',
+            'USD': '$',
+            'EUR': '€',
+            'SGD': 'S$',
+            'IDR': 'Rp',
+            'GBP': '£',
+            'AUD': 'A$',
+            'JPY': '¥',
+            'KRW': '₩',
+            'THB': '฿',
+            'INR': '₹',
+            'CNY': '¥',
+            'SAR': 'SR'
+        };
+
+        // 3. Tayangkan simbol yang sepadan dekat skrin. Kalau tak jumpa, guna kod string asal.
+        displayCurrency.textContent = currencySymbols[savedCurrency] || savedCurrency;
+
+        // 4. Logic butang Next
+        document.getElementById('btn-next-budget').addEventListener('click', () => {
+            const budgetValue = document.getElementById('monthly-budget-input').value;
+            
+            if (!budgetValue || budgetValue <= 0) {
+                alert("Please enter a valid budget amount!");
+                return;
+            }
+            
+            // Simpan amaun bajet secara sementara dalam browser
+            sessionStorage.setItem('user_budget', budgetValue);
+            
+            // Terus hantar user pergi ke skrin onboarding ke-3 (Pilih Kategori)
+            window.location.href = "select-categories.html";
+        });
+    </script>
+</body>
+</html>
