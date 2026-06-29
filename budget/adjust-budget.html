@@ -25,11 +25,9 @@
             
             <div class="space-y-2">
                 <label class="text-[10px] font-black text-stone-400 uppercase tracking-widest">Set New Limit</label>
-                <!-- Tambah id="budget-input" -->
                 <input type="number" id="budget-input" placeholder="RM 0.00" class="w-full bg-stone-100 p-5 rounded-2xl font-black text-lg outline-none focus:ring-2 ring-[#4A4A22]">
             </div>
 
-            <!-- Tambah id="save-btn" -->
             <button id="save-btn" class="w-full bg-[#4A4A22] text-white p-5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg active:scale-95 transition">
                 SAVE CHANGES
             </button>
@@ -41,6 +39,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
@@ -50,27 +49,36 @@
             messagingSenderId: "495267818258", 
             appId: "1:495267818258:web:323bfa521330af6649a1cb" 
         };
-        const db = getFirestore(initializeApp(firebaseConfig));
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         document.getElementById('save-btn').addEventListener('click', async () => {
+            const user = auth.currentUser;
             const inputVal = document.getElementById('budget-input').value;
             const newBudget = parseFloat(inputVal);
             
+            if (!user) {
+                alert("Sesi tamat. Sila login semula.");
+                window.location.href = "../auth/login.html";
+                return;
+            }
+
             if (isNaN(newBudget)) {
                 alert("Please enter a valid number!");
                 return;
             }
 
             try {
-                // Update ke Firebase
-                const userRef = doc(db, "users", "nana_test_user");
+                // Update ke Firebase guna user.uid (bukan nama hardcoded lagi)
+                const userRef = doc(db, "users", user.uid);
                 await updateDoc(userRef, {
                     monthlyBudget: newBudget,
                     initialBudget: newBudget
                 });
                 
                 alert("Budget successfully updated!");
-                // Balik ke dashboard
                 window.location.href = "../dashboard/index.html";
             } catch (error) {
                 console.error("Error updating budget: ", error);

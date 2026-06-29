@@ -73,6 +73,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -86,24 +87,30 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         const btnDashboard = document.getElementById('btn-go-dashboard');
 
         btnDashboard.addEventListener('click', async (e) => {
             e.preventDefault();
 
+            const user = auth.currentUser;
+
+            if (!user) {
+                alert("Sesi tamat. Sila login semula.");
+                window.location.href = "login.html";
+                return;
+            }
+
             // Retrieve onboarding data from sessionStorage
             const currency = sessionStorage.getItem('user_currency') || 'MYR';
             const budget = sessionStorage.getItem('user_budget') || '0';
             const categories = sessionStorage.getItem('user_categories') ? JSON.parse(sessionStorage.getItem('user_categories')) : ["Food", "Transport"];
 
-            // TEMPORARY ID: We use this until we fully restore the Firebase Auth session sync
-            const customDocId = "nana_test_user"; 
-
             try {
-                // Save configurations directly to Firestore
-                await setDoc(doc(db, "users", customDocId), {
-                    email: "nana.test@gmail.com",
+                // Save configurations using the unique user ID (user.uid)
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
                     currency: currency,
                     monthlyBudget: Number(budget),
                     selectedCategories: categories,
@@ -115,6 +122,9 @@
                 sessionStorage.removeItem('user_currency');
                 sessionStorage.removeItem('user_budget');
                 sessionStorage.removeItem('user_categories');
+
+                // Set authentication status
+                localStorage.setItem("isLoggedIn", "true");
 
                 // Redirect to user dashboard
                 window.location.href = "../dashboard/index.html";

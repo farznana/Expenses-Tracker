@@ -8,13 +8,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4A4A22">
     <script>
-        // 🌓 KONFIGURASI WAJIB: Bagi Tailwind faham pertukaran mod gelap berasaskan kelas
-        tailwind.config = {
-            darkMode: 'class'
-        }
-    </script>
-    <script>
-        // Inject tema awal-awal untuk elak flickering screen
+        tailwind.config = { darkMode: 'class' }
         if (localStorage.getItem("theme") === "dark") {
             document.documentElement.classList.add("dark");
         } else {
@@ -22,11 +16,8 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=400;500;600;700;800&display=swap');
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            min-height: 100vh; 
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; }
         .olive-box { background-color: #4A4A22; }
     </style>
 </head>
@@ -38,18 +29,15 @@
             <h2 class="font-extrabold text-base tracking-tight">Add Expense</h2>
             <div class="w-10"></div>
         </div>
-        
         <div class="p-6 space-y-4">
             <div class="bg-white dark:bg-[#2C2C24] border border-stone-200/60 dark:border-stone-700/50 p-5 rounded-3xl shadow-sm text-center transition-colors">
                 <p class="text-[10px] text-stone-400 dark:text-stone-400 font-bold uppercase tracking-wider mb-1">Amount</p>
                 <div id="display-amount" class="text-3xl font-black text-stone-800 dark:text-white">Loading...</div>
             </div>
-
             <div>
                 <label class="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1.5">Details (Remark)</label>
                 <input type="text" id="details-input" placeholder="e.g., Grab, McDonalds, Books" class="w-full bg-white dark:bg-[#2C2C24] py-3 px-4 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-medium text-stone-700 dark:text-stone-200 outline-none focus:border-[#4A4A22] dark:focus:border-[#C4BC82] transition-all">
             </div>
-
             <div>
                 <label class="block text-[10px] font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider mb-1.5">Category</label>
                 <select id="category-select" class="w-full bg-white dark:bg-[#2C2C24] py-3 px-4 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-bold text-stone-700 dark:text-stone-200 outline-none focus:border-[#4A4A22] dark:focus:border-[#C4BC82] transition-all">
@@ -60,132 +48,80 @@
                     <option value="Others">Others</option>
                 </select>
             </div>
-
             <div class="grid grid-cols-2 gap-2.5 pt-1">
                 <button onclick="setQuickAmount(10)" class="expense-btn bg-white dark:bg-[#2C2C24] py-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 active:scale-[0.98] transition-all">10</button>
                 <button onclick="setQuickAmount(50)" class="expense-btn bg-white dark:bg-[#2C2C24] py-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 active:scale-[0.98] transition-all">50</button>
                 <button onclick="setQuickAmount(100)" class="expense-btn bg-white dark:bg-[#2C2C24] py-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 active:scale-[0.98] transition-all">100</button>
                 <button onclick="setQuickAmount(500)" class="expense-btn bg-white dark:bg-[#2C2C24] py-2.5 rounded-xl border border-stone-200 dark:border-stone-700/60 text-sm font-bold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 active:scale-[0.98] transition-all">500</button>
             </div>
-            
             <button onclick="openModal()" class="w-full bg-white dark:bg-[#2C2C24] py-3 rounded-xl border border-stone-200 dark:border-stone-700/60 font-bold text-xs text-stone-500 dark:text-stone-400 uppercase tracking-widest hover:bg-stone-50 dark:hover:bg-stone-700 transition-all">Other Amount</button>
-            
             <button id="confirm-btn" class="w-full olive-box text-white py-4 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-md hover:bg-[#5B5B2E] active:scale-[0.98] transition-all pt-2">Confirm Transfer</button>
-        </div>
-    </div>
-
-    <div id="amount-modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-50 animate-fade-in">
-        <div class="bg-white dark:bg-[#20201A] w-full max-w-xs p-6 rounded-[32px] shadow-2xl space-y-4 border dark:border-stone-800">
-            <h2 class="text-sm font-bold text-stone-400 dark:text-stone-400 uppercase tracking-wider">Enter Amount</h2>
-            <input type="number" id="manual-input" class="w-full text-4xl font-black text-stone-800 dark:text-white bg-transparent border-b-2 border-stone-200 dark:border-stone-700 pb-2 focus:outline-none focus:border-[#4A4A22] dark:focus:border-[#C4BC82]" placeholder="0.00">
-            <div class="flex gap-3 pt-2">
-                <button onclick="closeModal()" class="flex-1 py-3 rounded-xl border border-stone-200 dark:border-stone-700 text-xs font-bold text-stone-500 dark:text-stone-400 tracking-wider uppercase hover:bg-stone-50 dark:hover:bg-stone-800">Cancel</button>
-                <button onclick="saveManualAmount()" class="flex-1 py-3 rounded-xl bg-[#4A4A22] text-white text-xs font-bold tracking-wider uppercase hover:bg-[#5B5B2E]">OK</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="success-page" class="hidden w-full max-w-sm bg-[#FCFBF5] dark:bg-[#20201A] rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col min-h-[580px] border border-stone-100 dark:border-stone-800/40 transition-colors duration-300">
-        <div class="flex-1 p-8 flex flex-col items-center">
-            <div class="w-16 h-16 bg-[#1A1A1A] dark:bg-[#4A4A22] rounded-full flex items-center justify-center text-white text-2xl font-bold mb-4 shadow-md">
-                ✓
-            </div>
-            
-            <h3 id="success-amount" class="text-3xl font-black text-stone-800 dark:text-white tracking-tight">RM 0.00</h3>
-            <p class="text-xs font-bold text-stone-500 dark:text-stone-400 mt-1 uppercase tracking-wider mb-8">Expense Added Successfully</p>
-            
-            <div class="w-full space-y-4 border-t border-dashed border-stone-200 dark:border-stone-700 pt-6 px-2 text-sm">
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-stone-400 dark:text-stone-500 text-xs uppercase tracking-wider">Category</span>
-                    <span id="success-category" class="font-black text-stone-800 dark:text-stone-200">Food</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-stone-400 dark:text-stone-500 text-xs uppercase tracking-wider">Remark</span>
-                    <span id="success-remark" class="font-black text-stone-800 dark:text-stone-200">Books</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="font-bold text-stone-400 dark:text-stone-500 text-xs uppercase tracking-wider">Date & Time</span>
-                    <span id="success-datetime" class="font-bold text-stone-700 dark:text-stone-300 text-xs">3/4/2026 16:25:25</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="relative bg-gradient-to-t from-[#E2DCB1] to-[#FCFBF5] dark:from-[#1A1A14] dark:to-[#20201A] p-8 pt-12 transition-colors">
-            <div class="absolute -top-6 left-0 right-0 h-6 bg-[#FCFBF5] dark:bg-[#20201A]" style="border-radius: 0 0 50% 50% / 0 0 100% 100%;"></div>
-            <a href="../dashboard/index.html" class="w-full block bg-[#4A4A22] hover:bg-[#5B5B2E] text-white text-center py-4 rounded-2xl font-bold text-sm uppercase tracking-widest shadow-xl active:scale-[0.99] transition-all relative z-10">
-                Done
-            </a>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc, collection, addDoc, increment } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
         let currentAmount = 0;
-        // 🟢 SYNC DENGAN LOCALSTORAGE PREFERENCE
         let userCurrency = localStorage.getItem("userCurrency") || "MYR"; 
 
-        const firebaseConfig = { 
-            apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
-            authDomain: "expenses-tracker-18c98.firebaseapp.com", 
-            projectId: "expenses-tracker-18c98", 
-            storageBucket: "expenses-tracker-18c98.firebasestorage.app", 
-            messagingSenderId: "495267818258", 
-            appId: "1:495267818258:web:323bfa521330af6649a1cb" 
-        };
-        const db = getFirestore(initializeApp(firebaseConfig));
+        const firebaseConfig = { /* ... config ... */ };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
         function formatMoney(amount, currencyCode) {
-            try {
-                return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(amount);
-            } catch (e) { return `${currencyCode} ${amount.toFixed(2)}`; }
+            try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: currencyCode }).format(amount); }
+            catch (e) { return `${currencyCode} ${amount.toFixed(2)}`; }
         }
 
         async function loadUserCurrency() {
-            const userDoc = await getDoc(doc(db, "users", "nana_test_user"));
-            if (userDoc.exists()) { 
-                // Gunakan cache tempatan terlebih dahulu, jika tiada baru sandar pada Firebase
-                userCurrency = localStorage.getItem("userCurrency") || userDoc.data().currency || "MYR"; 
+            const user = auth.currentUser;
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) { 
+                    userCurrency = localStorage.getItem("userCurrency") || userDoc.data().currency || "MYR"; 
+                }
             }
             document.getElementById('display-amount').innerText = formatMoney(currentAmount, userCurrency);
         }
         loadUserCurrency();
 
         document.getElementById('confirm-btn').addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) { alert("Sila login semula."); window.location.href = "../auth/login.html"; return; }
             if (currentAmount <= 0) return alert("Please enter amount");
+            
             const details = document.getElementById('details-input').value.trim() || "No description";
             const category = document.getElementById('category-select').value;
             const now = new Date();
             
             try {
-                // 1. Tambah data ke dalam Firestore collection "expenses"
+                // Tambah data ke collection "expenses" milik user tersebut
                 await addDoc(collection(db, "expenses"), { 
-                    userId: "nana_test_user", 
+                    userId: user.uid, 
                     amount: currentAmount, 
                     details: details,
                     category: category,
                     date: now 
                 });
                 
-                // 2. Potong baki asal dompet user
-                await updateDoc(doc(db, "users", "nana_test_user"), { monthlyBudget: increment(-currentAmount) });
+                // Update budget user tersebut
+                await updateDoc(doc(db, "users", user.uid), { monthlyBudget: increment(-currentAmount) });
                 
-                // 3. Suntik data transaksi ke dalam Paparan Receipt Success Page
+                // Paparan Success
                 document.getElementById('success-amount').innerText = formatMoney(currentAmount, userCurrency);
                 document.getElementById('success-category').innerText = category;
                 document.getElementById('success-remark').innerText = details;
-                
-                // Format Tarikh & Masa (D/M/YYYY HH:MM:SS)
-                const formattedDateTime = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-                document.getElementById('success-datetime').innerText = formattedDateTime;
+                document.getElementById('success-datetime').innerText = now.toLocaleString();
 
-                // 4. Tukar paparan skrin form ke success card overlay
                 document.getElementById('form-page').classList.add('hidden');
                 document.getElementById('success-page').classList.remove('hidden');
-                
             } catch (error) { 
-                alert("Something went wrong. Please check your connection."); 
+                console.error(error);
+                alert("Something went wrong."); 
             }
         });
 

@@ -6,7 +6,6 @@
     <title>Spending Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>.modal { display: none; } .modal.active { display: flex; }</style>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4A4A22">
@@ -17,13 +16,11 @@
 </head>
 <body class="bg-[#D3CFA7] dark:bg-[#1A1A14] p-4 transition-colors duration-300">
     <div id="analytics-content" class="w-full max-w-md mx-auto bg-[#FAF9F5] dark:bg-[#20201A] min-h-[850px] rounded-[40px] border-8 border-stone-800 dark:border-stone-700 p-6 shadow-2xl overflow-y-auto">
-        <a href="../user/profile.html" class="text-sm font-bold text-stone-500 dark:text-stone-400">← Back to Profile</a>
+        <a href="../dashboard/index.html" class="text-sm font-bold text-stone-500 dark:text-stone-400">← Back to Dashboard</a>
         
         <div class="mt-6 bg-stone-200 dark:bg-stone-800 p-1 rounded-2xl flex items-center gap-1">
             <button id="btn-month" onclick="setActive('month')" class="flex-1 py-2 text-[10px] font-bold rounded-xl bg-white dark:bg-[#2C2C24] dark:text-white shadow-sm transition-all">Month</button>
             <button id="btn-all" onclick="setActive('all')" class="flex-1 py-2 text-[10px] font-bold text-stone-500 dark:text-stone-400 transition-all">All</button>
-            <a href="transactions.html" class="flex-1 text-center py-2 bg-stone-500 text-white rounded-xl text-[10px] font-bold">History</a>
-            <button onclick="toggleModal(true)" class="flex-1 py-2 bg-[#4A4A22] text-white rounded-xl text-[10px] font-bold">Budget</button>
         </div>
 
         <h1 class="text-2xl font-black text-stone-800 dark:text-white mt-6">Analytics</h1>
@@ -39,18 +36,10 @@
         <div id="alerts" class="mt-4 space-y-2"></div>
     </div>
 
-    <!-- Budget Modal -->
-    <div id="budgetModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center p-4 z-50">
-        <div class="bg-white dark:bg-[#20201A] rounded-3xl p-6 w-full max-w-sm">
-            <h2 class="text-lg font-black mb-4 dark:text-white">Monthly Budget</h2>
-            <div id="budgetInputs" class="space-y-3"></div>
-            <button onclick="saveBudget()" class="w-full mt-4 bg-[#4A4A22] text-white py-2 rounded-xl font-bold">Save Changes</button>
-        </div>
-    </div>
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
@@ -62,42 +51,27 @@
         };
         
         const db = getFirestore(initializeApp(firebaseConfig));
+        const auth = getAuth();
         const currentMonthKey = new Date().toISOString().slice(0, 7);
-        let budgetData = JSON.parse(localStorage.getItem('myBudgets')) || { [currentMonthKey]: { "Food": 500, "Transport": 200, "Shopping": 300, "Others": 100 } };
         let doughnutChart;
 
-        window.toggleModal = (show) => {
-            const modal = document.getElementById('budgetModal');
-            if(show) {
-                const currentBudget = budgetData[currentMonthKey] || { "Food": 500, "Transport": 200, "Shopping": 300, "Others": 100 };
-                document.getElementById('budgetInputs').innerHTML = Object.keys(currentBudget).map(cat => `
-                    <div><label class="text-xs font-bold dark:text-stone-300">${cat}</label>
-                    <input type="number" id="input-${cat}" value="${currentBudget[cat]}" class="w-full p-2 border rounded-lg dark:bg-stone-800 dark:border-stone-700 dark:text-white"></div>
-                `).join('');
-                modal.classList.add('active');
-            } else modal.classList.remove('active');
-        }
-
-        window.saveBudget = () => {
-            const newBudget = {};
-            Object.keys(budgetData[currentMonthKey] || { "Food": 500, "Transport": 200, "Shopping": 300, "Others": 100 }).forEach(cat => {
-                newBudget[cat] = document.getElementById(`input-${cat}`).value;
-            });
-            budgetData[currentMonthKey] = newBudget;
-            localStorage.setItem('myBudgets', JSON.stringify(budgetData));
-            toggleModal(false);
-            loadData('month');
-        }
+        // Cek login status
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../auth/login.html";
+            } else {
+                loadData('month', user.uid);
+            }
+        });
 
         window.setActive = (mode) => {
-            loadData(mode);
+            const user = auth.currentUser;
+            if (user) loadData(mode, user.uid);
         }
 
-        async function loadData(mode) {
-            const snap = await getDocs(query(collection(db, "expenses"), where("userId", "==", "nana_test_user")));
+        async function loadData(mode, userId) {
+            const snap = await getDocs(query(collection(db, "expenses"), where("userId", "==", userId)));
             let total = 0, catTotals = {};
-            const alertContainer = document.getElementById('alerts');
-            alertContainer.innerHTML = "";
 
             snap.forEach(d => {
                 const item = d.data();
@@ -111,29 +85,18 @@
                 catTotals[item.category] = (catTotals[item.category] || 0) + amt;
             });
 
-            // Budget Alert
-            const currentBudget = budgetData[currentMonthKey] || {};
-            Object.entries(catTotals).forEach(([cat, val]) => {
-                if (val > (currentBudget[cat] || 0)) {
-                    alertContainer.innerHTML += `<div class="bg-red-100 p-3 rounded-xl text-red-600 text-[10px] font-bold">⚠️ Over budget in ${cat}!</div>`;
-                }
-            });
-
             document.getElementById('total-spent').innerText = `RM ${total.toFixed(2)}`;
             if (doughnutChart) doughnutChart.destroy();
             doughnutChart = new Chart(document.getElementById('bigChart'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(catTotals), datasets: [{ data: Object.values(catTotals), backgroundColor: ['#4A4A22', '#8A9A5B', '#C4BC82', '#A3B18A'] }] }
+                data: { 
+                    labels: Object.keys(catTotals), 
+                    datasets: [{ 
+                        data: Object.values(catTotals), 
+                        backgroundColor: ['#4A4A22', '#8A9A5B', '#C4BC82', '#A3B18A'] 
+                    }] 
+                }
             });
-        }
-        loadData('month');
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker OK!'))
-                .catch(() => console.log('Service Worker Failed!'));
         }
     </script>
 </body>

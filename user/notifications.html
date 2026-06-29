@@ -8,12 +8,9 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4A4A22">
     <script>
-        // 1. Konfigurasi Tailwind & Load Tema
         tailwind.config = { darkMode: 'class' }
         if (localStorage.getItem("theme") === "dark") {
             document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
         }
     </script>
     <style>
@@ -36,9 +33,7 @@
             </div>
         </div>
 
-        <div id="alert-container" class="space-y-4">
-            <p class="text-xs text-stone-400 dark:text-stone-500">Syncing data...</p>
-        </div>
+        <div id="alert-container" class="space-y-4"></div>
 
         <p class="text-[10px] font-black text-stone-400 dark:text-stone-500 uppercase tracking-widest pt-4">Recent Transactions</p>
         <div id="tx-container" class="space-y-3"></div>
@@ -46,7 +41,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-        import { getFirestore, doc, onSnapshot, collection, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, collection, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
 
         const firebaseConfig = { 
             apiKey: "AIzaSyBifH2Tznj6CIYLGK9fmaU6KVj5-7OTdj4", 
@@ -57,56 +53,49 @@
             appId: "1:495267818258:web:323bfa521330af6649a1cb" 
         };
         const db = getFirestore(initializeApp(firebaseConfig));
+        const auth = getAuth();
 
-        // Listener 1: Budget & Balance
-        onSnapshot(doc(db, "users", "nana_test_user"), (docSnap) => {
-            if (!docSnap.exists()) return;
-            const data = docSnap.data();
-            const balance = parseFloat(data.monthlyBudget) || 0;
-            const initial = parseFloat(data.initialBudget) || 0;
-            
-            document.getElementById('balance-val').innerText = `RM ${balance.toFixed(2)}`;
-            
-            const spent = initial - balance;
-            const pct = initial > 0 ? (spent / initial) * 100 : 0;
-            
-            const alertCont = document.getElementById('alert-container');
-            alertCont.innerHTML = '';
-            
-            if (pct >= 80) {
-                renderItem(alertCont, "Critical Budget", `Used ${pct.toFixed(0)}%! Stop spending.`, "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400", "🚨");
-            } else if (pct >= 50) {
-                renderItem(alertCont, "Budget Warning", `Halfway gone. Keep it steady!`, "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400", "⚠️");
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "../auth/login.html";
             } else {
-                renderItem(alertCont, "Good Job", "Your spending is under control. Nice!", "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400", "✨");
+                initActivity(user.uid);
             }
         });
 
-        // Listener 2: Recent Transactions
-        const q = query(collection(db, "expenses"), orderBy("date", "desc"), limit(5));
-        onSnapshot(q, (snap) => {
-            const txCont = document.getElementById('tx-container');
-            txCont.innerHTML = '';
-            snap.forEach((d) => {
-                const tx = d.data();
-                renderItem(txCont, tx.category || "General", `RM ${tx.amount || 0}`, "bg-white dark:bg-[#2C2C24] border border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-200", "💸");
+        function initActivity(uid) {
+            // Data Budget
+            onSnapshot(doc(db, "users", uid), (docSnap) => {
+                if (!docSnap.exists()) return;
+                const data = docSnap.data();
+                document.getElementById('balance-val').innerText = `RM ${parseFloat(data.monthlyBudget || 0).toFixed(2)}`;
+                
+                const pct = data.initialBudget > 0 ? ((data.initialBudget - data.monthlyBudget) / data.initialBudget) * 100 : 0;
+                const alertCont = document.getElementById('alert-container');
+                alertCont.innerHTML = '';
+                
+                if (pct >= 80) renderItem(alertCont, "Critical Budget", `Used ${pct.toFixed(0)}%! Stop spending.`, "bg-red-100 text-red-600", "🚨");
+                else if (pct >= 50) renderItem(alertCont, "Budget Warning", `Halfway gone. Keep it steady!`, "bg-yellow-100 text-yellow-600", "⚠️");
+                else renderItem(alertCont, "Good Job", "Your spending is under control.", "bg-emerald-100 text-emerald-600", "✨");
             });
-        });
+
+            // Transaksi
+            const q = query(collection(db, "expenses"), where("userId", "==", uid), orderBy("date", "desc"), limit(5));
+            onSnapshot(q, (snap) => {
+                const txCont = document.getElementById('tx-container');
+                txCont.innerHTML = '';
+                snap.forEach((d) => {
+                    const tx = d.data();
+                    renderItem(txCont, tx.category, `RM ${tx.amount}`, "bg-white dark:bg-[#2C2C24]", "💸");
+                });
+            });
+        }
 
         function renderItem(container, title, msg, style, icon) {
             const div = document.createElement('div');
-            // Extracting class from style string
-            const colorClass = style.split(' ')[0] + ' ' + style.split(' ')[1];
-            const textClass = style.split(' ')[2] + ' ' + style.split(' ')[3];
-            
-            div.className = `p-4 rounded-2xl flex gap-3 items-center shadow-sm border border-stone-100 dark:border-stone-700 bg-white dark:bg-[#2C2C24] transition-colors`;
-            div.innerHTML = `
-                <div class="w-10 h-10 ${colorClass} rounded-xl flex items-center justify-center font-black text-sm shrink-0">${icon}</div>
-                <div>
-                    <p class="font-bold text-xs text-stone-800 dark:text-white">${title}</p>
-                    <p class="text-[10px] text-stone-500 dark:text-stone-400">${msg}</p>
-                </div>
-            `;
+            div.className = `p-4 rounded-2xl flex gap-3 items-center shadow-sm border border-stone-100 dark:border-stone-700 ${style} transition-colors`;
+            div.innerHTML = `<div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm shrink-0">${icon}</div>
+                             <div><p class="font-bold text-xs">${title}</p><p class="text-[10px] opacity-80">${msg}</p></div>`;
             container.appendChild(div);
         }
     </script>
