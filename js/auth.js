@@ -1,6 +1,7 @@
 import { auth, googleProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup } from "./firebase-config.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+    
     // 1. LOGIC REGISTER
     const registerForm = document.getElementById("register-form");
     if (registerForm) {
@@ -11,8 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 await createUserWithEmailAndPassword(auth, email, password);
+                // Kita tak set "isLoggedIn" kat sini sebab kena setup currency dulu
                 alert("Akaun berjaya didaftarkan! Jom setup profile anda.");
-                window.location.href = "choose-currency.html"; // Hantar ke onboarding pertama!
+                window.location.href = "choose-currency.html";
             } catch (error) {
                 alert("Error Register: " + error.message);
             }
@@ -29,8 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
             try {
                 await signInWithEmailAndPassword(auth, email, password);
+                
+                // Set status login
+                localStorage.setItem("isLoggedIn", "true");
+                
                 alert("Selamat datang kembali!");
-                window.location.href = "../dashboard/index.html"; // User lama terus masuk dashboard
+                window.location.href = "../dashboard/index.html"; 
             } catch (error) {
                 alert("Error Login: " + error.message);
             }
@@ -43,10 +49,14 @@ document.addEventListener("DOMContentLoaded", () => {
         btnGoogle.addEventListener("click", async () => {
             try {
                 const result = await signInWithPopup(auth, googleProvider);
+                
+                // Set status login
+                localStorage.setItem("isLoggedIn", "true");
+                
                 alert(`Selamat datang ${result.user.displayName}!`);
                 
-                // Pembaharuan: Kalau user baru google, bawa setup. Kalau user lama, pergi dashboard.
-                // Buat masa ni kita hantar ke choose-currency dulu untuk test.
+                // Kalau user baru, hantar ke setup. 
+                // Kalau dah ada data/user lama, boleh terus ke dashboard.
                 window.location.href = "choose-currency.html"; 
             } catch (error) {
                 alert("Error Google Login: " + error.message);
