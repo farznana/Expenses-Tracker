@@ -8,119 +8,70 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4A4A22">
     <style>
-        /* CSS Khusus untuk Borang Register */
-        .register-container {
-            position: relative;
-            z-index: 10;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #7d6e33;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #bca95c;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-        .btn-submit {
-            width: 100%;
-            padding: 12px;
-            background: #7d6e33;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: 0.3s;
-        }
-        .btn-submit:hover {
-            background: #bca95c;
-        }
-        .google-divider {
-            margin: 20px 0;
-            color: #777;
-            font-size: 14px;
-        }
-        .btn-google {
-            width: 100%;
-            padding: 10px;
-            background: white;
-            color: #333;
-            border: 1px solid #ccc;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .login-link {
-            margin-top: 15px;
-            font-size: 14px;
-        }
-        .login-link a {
-            color: #7d6e33;
-            text-decoration: none;
-            font-weight: bold;
-        }
+        .register-container { background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #7d6e33; }
+        .form-group input { width: 100%; padding: 10px; border: 1px solid #bca95c; border-radius: 8px; box-sizing: border-box; }
+        .btn-submit { width: 100%; padding: 12px; background: #7d6e33; color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-submit:hover { background: #bca95c; }
+        .login-link { margin-top: 15px; font-size: 14px; }
+        .login-link a { color: #7d6e33; text-decoration: none; font-weight: bold; }
     </style>
-    <script>
-        if (localStorage.getItem("theme") === "dark") {
-            document.documentElement.classList.add("dark");
-        } else {
-            document.documentElement.classList.remove("dark");
-        }
-    </script>
 </head>
-<body class="page">
-
-    <div class="wave-divider-2"></div>
+<body class="flex items-center justify-center min-h-screen bg-[#D3CFA7]">
 
     <div class="register-container">
         <h2 style="color: #7d6e33; margin-bottom: 5px;">Create Account</h2>
-        <p style="color: #666; margin-bottom: 25px;">Sign up to start tracking</p>
-
         <form id="register-form">
             <div class="form-group">
-                <label for="register-email">Email Address</label>
-                <input type="email" id="register-email" placeholder="example@gmail.com" required>
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="example@gmail.com" required>
             </div>
             <div class="form-group">
-                <label for="register-password">Password</label>
-                <input type="password" id="register-password" placeholder="Min 6 characters" required>
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Min 6 characters" required>
             </div>
             <button type="submit" class="btn-submit">REGISTER</button>
         </form>
-
-        <div class="google-divider">OR</div>
-
-        <button id="btn-google-login" class="btn-google">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_\" logo\"_2023.png" alt="Google" style="width:18px; display:none;" onerror="this.src='https://www.gstatic.com/images/branding/product/1x/gsa_android_loupe_72dp.png'; this.style.width='18px';">
-            <span>Sign up with Google</span>
-        </button>
 
         <div class="login-link">
             Already have an account? <a href="login.html">Login here</a>
         </div>
     </div>
 
-    <script type="module" src="../js/auth.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-firestore.js";
+
+        const firebaseConfig = { /* MASUKKAN CONFIG KAU SINI */ };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Auto-setup database user baru
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    monthlyBudget: 0,
+                    initialBudget: 0,
+                    createdAt: new Date().toISOString()
+                });
+
+                alert("Akaun berjaya dibuat!");
+                window.location.href = "../dashboard/index.html";
+            } catch (error) {
+                alert("Error: " + error.message);
+            }
+        });
+    </script>
 </body>
 </html>
